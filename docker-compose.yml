@@ -38,6 +38,7 @@ x-assets: &default-assets
   tty: true
   volumes:
     - ".:/db-data"
+    - ".:/app"
 
 services:
   postgres:
