@@ -20,7 +20,7 @@ x-app: &default-app
   stop_grace_period: "3s"
   tty: true
   volumes:
-    - "${DOCKER_WEB_VOLUME:-./public_collected:/app/public_collected}"
+    - "${DOCKER_WEB_VOLUME:-./public_collected:/db-data/public_collected}"
 
 x-assets: &default-assets
   build:
@@ -37,7 +37,7 @@ x-assets: &default-assets
   stop_grace_period: "0"
   tty: true
   volumes:
-    - ".:/app"
+    - ".:/db-data"
 
 services:
   postgres:
@@ -113,4 +113,3 @@ services:
 volumes:
   postgres: {}
   redis: {}
-  
