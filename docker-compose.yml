@@ -51,6 +51,8 @@ services:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
       # POSTGRES_DB: "${POSTGRES_DB}"
     image: "postgres:16.3-bookworm"
+    labels:
+      shipyard.init: './run manage migrate'
     profiles: ["postgres"]
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
     stop_grace_period: "3s"
