@@ -27,8 +27,6 @@ x-assets: &default-assets
     context: "."
     target: "assets"
     args:
-      - "UID=${UID:-1000}"
-      - "GID=${GID:-1000}"
       - "NODE_ENV=${NODE_ENV:-production}"
   env_file:
     - ".env.example"
@@ -49,12 +47,8 @@ services:
     environment:
       POSTGRES_USER: "${POSTGRES_USER}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
-      GID: 1000
-      UID: 1000
       # POSTGRES_DB: "${POSTGRES_DB}"
     image: "postgres:16.3-bookworm"
-    labels:
-      shipyard.init: './run manage migrate'
     profiles: ["postgres"]
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
     stop_grace_period: "3s"
