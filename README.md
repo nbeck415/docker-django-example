@@ -29,6 +29,7 @@ updated every time I bump the versions:
   - [`run`](#run)
 - [Running a script to automate renaming the project](#running-a-script-to-automate-renaming-the-project)
 - [Updating dependencies](#updating-dependencies)
+- [Deploying with Shipyard](#deploying-with-shipyard)
 - [See a way to improve something?](#see-a-way-to-improve-something)
 - [Additional resources](#additional-resources)
   - [Learn more about Docker and Django](#learn-more-about-docker-and-django)
