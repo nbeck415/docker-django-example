@@ -100,8 +100,6 @@ services:
 
   js:
     <<: *default-assets
-    labels:
-      shipyard.job: true
     command: "../run yarn:build:js"
 
   css:
