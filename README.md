@@ -442,7 +442,7 @@ You’ll want to use unique volumes for `x-app` and `x-assets`. Replace `app` wi
 
 ```yaml
   volumes:
-    - "${DOCKER_WEB_VOLUME:-./public_collected:/db-data/public_collected}"
+    - "${DOCKER_WEB_VOLUME:-./public_collected:/db/public_collected}"
 ```
 
 And a sample volume mount in the `x-assets` definition:
