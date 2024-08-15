@@ -21,12 +21,15 @@ x-app: &default-app
   tty: true
   volumes:
     - "${DOCKER_WEB_VOLUME:-./public_collected:/app/public_collected}"
+  # Use this volume instead when deploying with Shipyard
+  # - "${DOCKER_WEB_VOLUME:-./public_collected:/db/public_collected}"
 
 x-assets: &default-assets
   build:
     context: "."
     target: "assets"
     args:
+    # Comment out UID and GID when deploying with Shipyard
       - "UID=${UID:-1000}"
       - "GID=${GID:-1000}"
       - "NODE_ENV=${NODE_ENV:-production}"
@@ -38,6 +41,8 @@ x-assets: &default-assets
   tty: true
   volumes:
     - ".:/app"
+  # Use this volume instead when deploying with Shipyard
+  # - ".:/db-data"
 
 services:
   postgres:
@@ -72,6 +77,8 @@ services:
 
   web:
     <<: *default-app
+    labels:
+      shipyard.route: '/'
     deploy:
       resources:
         limits:
@@ -100,10 +107,14 @@ services:
 
   js:
     <<: *default-assets
+    labels:
+      shipyard.job: true
     command: "../run yarn:build:js"
 
   css:
     <<: *default-assets
+    labels:
+      shipyard.job: true
     command: "../run yarn:build:css"
 
 volumes:
