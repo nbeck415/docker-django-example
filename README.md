@@ -29,6 +29,7 @@ updated every time I bump the versions:
   - [`run`](#run)
 - [Running a script to automate renaming the project](#running-a-script-to-automate-renaming-the-project)
 - [Updating dependencies](#updating-dependencies)
+- [Deploying with Shipyard](#deploying-with-shipyard)
 - [See a way to improve something?](#see-a-way-to-improve-something)
 - [Additional resources](#additional-resources)
   - [Learn more about Docker and Django](#learn-more-about-docker-and-django)
@@ -402,6 +403,94 @@ This is usually a non-issue since you'll be pulling down pre-built images from
 a Docker registry but if you decide to build your Docker images directly on
 your server you could run `docker compose build` as part of your deploy
 pipeline.
+
+## Deploying with Shipyard
+
+With a few minor config adjustments, you can deploy this app to a Shipyard ephemeral environment and start previewing/testing/sharing your latest code changes.
+
+#### Adding Compose label
+
+[Shipyard](https://shipyard.build) transpiles your Docker Compose file to Kubernetes manifests. Using Shipyard labels can extend your app with any functionalities that aren’t native to Docker Compose.
+
+We want to set the app’s primary route to our frontend service using the [`shipyard.route` label](https://docs.shipyard.build/docs/docker-compose#shipyardroute). In this case, this’ll be the `web` service.
+
+```yaml
+  web:
+    <<: *default-app
+    labels:
+      shipyard.route: '/'
+```
+
+Our `css` and `js` services are one-off tasks: they run their respective scripts until completion and then are no longer needed. This means we’ll want to deploy them as [Kubernetes jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/) using the [`shipyard.job` label](https://docs.shipyard.build/docs/docker-compose#shipyardjob).
+
+```yaml
+  js:
+    <<: *default-assets
+    labels:
+      shipyard.job: true
+    command: "../run yarn:build:js"
+
+  css:
+    <<: *default-assets
+    labels:
+      shipyard.job: true
+    command: "../run yarn:build:css"
+```
+
+#### Using fresh volumes
+
+You’ll want to use unique volumes for `x-app` and `x-assets`. Replace `app` with a directory name of your choosing. Here’s a sample volume mount in the `x-app` definition:
+
+```yaml
+  volumes:
+    - "${DOCKER_WEB_VOLUME:-./public_collected:/db/public_collected}"
+```
+
+And a sample volume mount in the `x-assets` definition:
+
+```yaml
+  volumes:
+    - ".:/db-data"
+```
+
+Comment out the `DOCKER_WEB_VOLUME` env var in the `.env.example` file:
+
+```yaml
+# export DOCKER_WEB_VOLUME=.:/app
+```
+
+#### Configuring env vars
+
+In the `compose.yaml`, comment out the `GID` and `UID` env vars in the `x-assets` definition. 
+
+```yaml
+    args:
+    # - "UID=${UID:-1000}"
+    # - "GID=${GID:-1000}"
+      - "NODE_ENV=${NODE_ENV:-production}"
+```
+
+For the `x-app` and `x-assets` definitions, change `.env` to `.env.example`.
+
+```yaml
+  env_file:
+    - ".env.example"
+```
+
+#### Running on Shipyard
+
+If you haven’t already, [sign up for a 30-day free Shipyard trial](https://shipyard.build/signup).
+
+1. Create a new application from the dashboard.
+2. Select your fork of the repository and your working (base) branch.
+3. Click **Select Services**. Verify that all Compose profiles are selected.
+4. Click **Add environment variables**. Ensure that `POSTGRES_USER` and `POSTGRES_PASSWORD` are set to their default values.
+
+Once you click **Create Application**, your app will start to build.
+
+*For more detailed onboarding instructions, [check out the docs](https://docs.shipyard.build/docs/quickstart).*
+
+You can now visit your running [ephemeral environment](https://ephemeralenvironments.io) from your Shipyard dashboard. Every time you push to your base branch, the environment will rebuild to reflect your latest code changes. And whenever you open a PR to your base branch, it will spin up in its own isolated environment.
 
 ## See a way to improve something?
 
