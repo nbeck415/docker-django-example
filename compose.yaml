@@ -16,6 +16,8 @@ x-app: &default-app
       required: false
   env_file:
     - ".env"
+  # Use this env file instead when deploying with Shipyard
+  # - ".env.example"
   restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
   stop_grace_period: "3s"
   tty: true
@@ -35,6 +37,8 @@ x-assets: &default-assets
       - "NODE_ENV=${NODE_ENV:-production}"
   env_file:
     - ".env"
+  # Use this env file instead when deploying with Shipyard
+  # - ".env.example"
   profiles: ["assets"]
   restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
   stop_grace_period: "0"
